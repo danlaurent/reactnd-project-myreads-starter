@@ -2,11 +2,46 @@ import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import Book from './Book'
 import PropTypes from 'prop-types'
+import * as BooksAPI from '../utils/BooksAPI'
+import { Debounce } from 'react-throttle'
 
 class SearchBooks extends Component {
 
+  constructor(props) {
+    super(props)
+    this.state = {
+      searchResult: []
+    }
+  }
+
+  searchQuery = (query) => {
+    if(query) {
+      BooksAPI.search(query).then((books) => {
+        const shelfBooks = this.props.books
+        books.map(book => {
+          let myBooks = shelfBooks.filter(_ => _.id === book.id)
+          if (myBooks.length > 0) {
+            myBooks.map(myBook => (
+              book.shelf = myBook.shelf
+            ))
+          } else if (book.shelf === undefined) {
+            book.shelf = "none"
+          }
+          return myBooks
+        })
+        this.setState({
+          searchResult: books
+        })
+      })
+    } else {
+      this.setState({
+        searchResult: []
+      })
+    }
+  }
+
   render() {
-    const { searchResult, searchQuery } = this.props
+    const { searchResult } = this.state
     return (
       <div className="search-books">
         <div className="search-books-bar">
@@ -20,11 +55,13 @@ class SearchBooks extends Component {
                         However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
                         you don't find a specific author or title. Every search is limited by search terms.
                     */}
-            <input
-              type="text"
-              placeholder="Search by title or author and press enter"
-              onKeyPress={(e) => { searchQuery(e, e.target.value) }}
-            />
+            <Debounce time="400" handler="onChange">
+              <input
+                type="text"
+                placeholder="Search by title or author"
+                onChange={(e) => { this.searchQuery(e.target.value) }}
+              />
+            </Debounce>
 
           </div>
         </div>
@@ -34,11 +71,6 @@ class SearchBooks extends Component {
               <Book
                 key={book.id}
                 book={book}
-                title={book.title}
-                subtitle={book.subtitle}
-                shelf={book.shelf}
-                authors={book.authors}
-                image={book.imageLinks.smallThumbnail}
                 onShelfChange={this.props.onShelfChange}
               />
             ))}
@@ -54,8 +86,6 @@ SearchBooks.propTypes = {
   currentlyReading: PropTypes.array.isRequired,
   wantToRead: PropTypes.array.isRequired,
   read: PropTypes.array.isRequired,
-  searchResult: PropTypes.array.isRequired,
-  searchQuery: PropTypes.func.isRequired,
   onShelfChange: PropTypes.func.isRequired
 }
 
