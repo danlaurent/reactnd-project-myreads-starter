@@ -73,7 +73,6 @@ class BooksApp extends React.Component {
             searchResult={this.state.searchResult}
             onShelfChange={(book, shelf) => {
               this.onShelfChange(book, shelf)
-              history.push('/')
             }
             }
           />
