@@ -16,11 +16,6 @@ class Bookshelf extends Component {
               <Book
                 key={book.id}
                 book={book}
-                title={book.title}
-                subtitle={book.subtitle}
-                shelf={book.shelf}
-                authors={book.authors}
-                image={book.imageLinks.smallThumbnail}
                 onShelfChange={this.props.onShelfChange}
               />
             ))}

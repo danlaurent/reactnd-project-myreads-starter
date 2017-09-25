@@ -7,12 +7,14 @@ import * as BooksAPI from './utils/BooksAPI'
 
 class BooksApp extends React.Component {
 
-  state = {
-    books: [],
-    currentlyReading: [],
-    wantToRead: [],
-    read: [],
-    searchResult: []
+  constructor(props) {
+    super(props)
+    this.state = {
+      books: [],
+      currentlyReading: [],
+      wantToRead: [],
+      read: []
+    }
   }
 
   componentDidMount() {
@@ -44,32 +46,9 @@ class BooksApp extends React.Component {
         books: updatedBooks,
         currentlyReading: updatedBooks.filter(b => b.shelf === 'currentlyReading'),
         wantToRead: updatedBooks.filter(b => b.shelf === 'wantToRead'),
-        read: updatedBooks.filter(b => b.shelf === 'read'),
-        searchResult: []
+        read: updatedBooks.filter(b => b.shelf === 'read')
       })
     })
-  }
-
-  searchQuery = (e, query) => {
-    if (e.key === 'Enter') {
-      BooksAPI.search(query).then((books) => {
-        const shelfBooks = this.state.books
-        books.map(book => {
-          let myBooks = shelfBooks.filter(_ => _.id === book.id)
-          if (myBooks.length > 0) {
-            myBooks.map(myBook => (
-              book.shelf = myBook.shelf
-            ))
-          } else if (book.shelf === undefined) {
-            book.shelf = "none"
-          }
-          return myBooks
-        })
-        this.setState({
-          searchResult: books
-        })
-      })
-    }
   }
 
   render() {
@@ -91,7 +70,6 @@ class BooksApp extends React.Component {
             currentlyReading={this.state.currentlyReading}
             wantToRead={this.state.wantToRead}
             read={this.state.read}
-            searchQuery={(e, query) => { this.searchQuery(e, query) }}
             searchResult={this.state.searchResult}
             onShelfChange={(book, shelf) => {
               this.onShelfChange(book, shelf)
