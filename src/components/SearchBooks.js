@@ -10,7 +10,8 @@ class SearchBooks extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      searchResult: []
+      searchResult: [],
+      noResults: false
     }
   }
 
@@ -18,6 +19,7 @@ class SearchBooks extends Component {
     if(query) {
       BooksAPI.search(query).then((books) => {
         const shelfBooks = this.props.books
+        console.log(books)
         books.map(book => {
           let myBooks = shelfBooks.filter(_ => _.id === book.id)
           if (myBooks.length > 0) {
@@ -30,18 +32,25 @@ class SearchBooks extends Component {
           return myBooks
         })
         this.setState({
-          searchResult: books
+          searchResult: books,
+          noResults: false
+        })
+      }).catch(err => {
+        this.setState({
+          searchResult: [],
+          noResults: true
         })
       })
     } else {
       this.setState({
-        searchResult: []
+        searchResult: [],
+        noResults: false
       })
     }
   }
 
   render() {
-    const { searchResult } = this.state
+    const { searchResult, noResults } = this.state
     return (
       <div className="search-books">
         <div className="search-books-bar">
@@ -66,6 +75,9 @@ class SearchBooks extends Component {
           </div>
         </div>
         <div className="search-books-results">
+          {noResults === true && (
+            <small className="no-results">No results found</small>
+          )}
           <ol className="books-grid">
             {searchResult.map(book => (
               <Book
